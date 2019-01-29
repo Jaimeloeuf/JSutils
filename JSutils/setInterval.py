@@ -1,4 +1,4 @@
-from threading import Timer
+from threading import Timer, Thread
 
 """ @Todos
 	- Create a method that will call the stop method when the process exits. Because the timer thread continues to run
@@ -11,6 +11,10 @@ from threading import Timer
 	  Or perhaps a time limit for how long this loop should loop for, like loopFor(10mins), meaning after 10 mins, the loop
 	  should call self.stop method. This can be possibly implemented by using another 'kill interval' timer that calls the
 	  stop method upon timeout.
+	- Since this module is based on the Timer Class from the threading library, and based on threads, it is not advised to
+	  use this setInterval Class when doing actions that are CPU intensive and blocking on other threads, which may interfere
+	  with the timing of this Class. Will be working on another class based on the same idea that will run in a seperate
+	  process instead to allow true parallel and non concurrent execution style.
 """
 
 class setInterval:
@@ -20,17 +24,24 @@ class setInterval:
 		self.fn = fn
 		self.args = args
 		self.kwargs = kwargs
-		# Instead of calling method on object creation, wait till end of the 1st time interval before calling method
+		# Instead of calling input function on object creation, wait till end of the 1st time interval.
 		# Delay the first call to the timeout method by the given time interval
-		Timer(self.__time, self.timeOut).start()
+		# self.__thread = Thread(target=self.start) # Testing to use threads, so I can make it a daemon to die on main thread exits.
+		self.start()
+	
+	# Method to start the timer
+	def start(self):
+		self.__t = Timer(self.__time, self.timeOut)
+		self.__t.start()
+		# Return self to allow the user to do method call chainging. E.g. loop = setInterval(3, fn).start()
+		return self
 
 	# Method that is run everytime the Timer time's out.
 	def timeOut(self):
 		# Call the given function with any arguements supplied
 		self.fn(*self.args, **self.kwargs)
-		# Create another Timer object, to call this function again on timeout.
-		self.__t = Timer(self.__time, self.timeOut)
-		self.__t.start()
+		# Call start method to create another Timer object to call this function again on timeout.
+		self.start()
 
 	# Method to stop the loop, if needed, execute the callback one last time
 	def stop(self, oneLastTime=False):
@@ -46,8 +57,8 @@ class setInterval:
 		self.stop()
 		# Set the time into the object's field
 		self.__time = time
-		# Delay the first call to the timeout method by the given time interval
-		Timer(self.__time, self.timeOut).start()
+		# Reset the timer with a newly created Timer object using start method.
+		self.start()
 
 	# Set the arguements to be passed into the callback function
 	def set_args(self, *args, **kwargs):
@@ -66,3 +77,6 @@ if __name__ == "__main__":
 	sleep(6)
 	# Stop the interval, but execute the callback one last time before killing the loop
 	tout.stop(True)
+
+	# If the keyboard interrupts at any time
+	# except KeyboardInterrupt:

@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='JSutils',
-      version='0.1',
+      version='0.2',
       description='Simple to use looping mechanism to emulate the setInterval function in JavaScript',
 	  long_description=readme(),
       classifiers=[
