@@ -1,30 +1,34 @@
+# import threading
 from threading import Thread
 from multiprocessing import Process
 from time import sleep
 
-""" Todo:
-    When we say run this every 10 Seconds. Do we mean to execute the program every 10 seconds or do we mean to
-    have 10 seconds time interval between the end of function execution 1 and the start of function execution 2?
-"""
+""" Allows user to create a infinite loop to execute a few tasks repeatedly in a child process. """
 
 
-# This setInterval class is a made with loop-based subprocesses.
-class setInterval:
-    """ setInterval Class:
-        This is a loop and sleep based setInterval commpared to a Timer Object based setInterval
-        This is used to create a type of loop, where a given function/method is called repeatedly every
+class ExecQue:
+    """ This is used to create a type of loop, where a given function/method is called repeatedly every
         'n' given seconds, until the stop method is called, or when the main thread dies/exits. Used this
         to emulate the behaviour of the native setInterval function in JavaScript.
-    """
+        """
 
     # To pass in the interval time, callback function, and any arguements for the callback function into the constructor
-    def __init__(self, time, fn, *args, **kwargs):
+    def __init__(self, time, fn_list, *args, **kwargs):
         self.__time = time
-        self.__fn = fn
+        # fn_list should be a list of dictionaries, where each dictionary contains the function reference and its args
+        self.__fn = fn_list
         self.__args = args
         self.__kwargs = kwargs
         # Start looping
         self.start()
+
+    # Method to append functions to the back of the execution queue
+    def append_fn(self, fn, *args, **kwargs):
+        self.__fn.append({
+            "fn": fn,
+            "args": args,
+            "kwargs": kwargs
+        })
 
     # Wrapper method for the loop. Should not be called externally or by any other method except the start method
     def _loop(self):
@@ -32,7 +36,9 @@ class setInterval:
         while True:
             # Sleep first before calling the function.
             sleep(self.__time)
-            self.__fn(*self.__args, **self.__kwargs)
+            # Run all the functions in sequence
+            for fn in self.__fn:
+                fn(*self.__args, **self.__kwargs)
 
     def start(self):
         """ Method that calls the infinite loop's wrapper function """
@@ -85,8 +91,9 @@ if __name__ == "__main__":
     sleep(3)
 
     intervaloop.set_interval(0.1)
-    intervaloop.set_args('hello', optionalMsg='HELAoscbnknjkjn')
+    # intervaloop.set_args('hello', optionalMsg='HELAoscbnknjkjn')
 
     sleep(3)
 
     intervaloop.stop()
+    # This is a loop and sleep based setInterval commpared to a Timer Object based setInterval
