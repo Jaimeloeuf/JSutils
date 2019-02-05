@@ -31,11 +31,10 @@ class setInterval:
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
-        # Instead of calling input function on object creation, wait till end of the 1st time interval.
+        # 1st call to function will only happen after the 1st time interval.
         # Delay the first call to the timeout method by the given time interval
-        # self.__thread = Thread(target=self.start) # Testing to use threads, so I can make it a daemon to die on main thread exits.
-
         self.start()
+        # self.__thread = Thread(target=self.start) # Testing to use threads, so I can make it a daemon to die on main thread exits.
 
     # Method to start the timer
     def start(self):
