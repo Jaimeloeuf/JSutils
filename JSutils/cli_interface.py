@@ -1,38 +1,58 @@
-import sys
+""" Dependencies """
 import os
-
-# View all the environmental variables
-# os.environ
-print(os.environ)
+import sys
 
 
-# using get will return `None` if a key is not present rather than raise a `KeyError`
-print(os.environ.get('KEY_THAT_MIGHT_EXIST'))
-
-# os.getenv is equivalent, and can also give a default value instead of `None`
-print(os.getenv('KEY_THAT_MIGHT_EXIST', default_value))
-
-# Python default installation on Windows is C:\Python. Use below to find out
-print(sys.prefix)
-
-# To check if the key exists (returns True or False)
-'HOME' in os.environ
+# Function to get environmental variables. Returns value or None if none found
+def get_env_var(var):
+	return os.environ.get(var)
 
 
-"""
-My python script which calls many python functions and shell scripts. I want to set a environment variable in Python (main calling function) and all the daughter processes including the shell scripts to see the environmental variable set.
+# Function to set environmental variables. Returns the value using the the get_env_var function
+def set_env_var(var, value):
+	os.environ[var] = value
+	return get_env_var(var)
 
-I need to set some environmental variables like this:
 
-DEBUSSY 1
-FSDB 1
-1 is a number, not a string. Additionally, how can I read the value stored in an environment variable? (Like DEBUSSY/FSDB in another python child script.)
-"""
 
-os.environ['DEBUSSY'] = '1'
-os.environ['FSDB'] = '1'
 
-# Open child processes via os.system(), popen() or fork() and execv()
+# Run the below example codes if module ran as the main module
+if __name__ == "__main__":
+	""" Below example code uses native functions/packages """
+	# To view all the environmental variables. Note quite alot will be printed out.
+	# print(os.environ)
 
-# Then read the variable using the same method whilst in the child process
-someVariable = int(os.environ['DEBUSSY'])
+	# Using get will return `None` if a key is not present rather than raise a `KeyError`
+	print(os.environ.get('KEY_THAT_MIGHT_EXIST'))
+
+	# os.getenv is equivalent, but a default value can also be used instead of `None`
+	print(os.getenv('KEY_THAT_MIGHT_EXIST', 'DEFAULT VALUE'))
+
+	# Python default installation on Windows is C:\Python. Use below to find out
+	print(sys.prefix)
+
+	# To check if the key exists (returns True or False)
+	print('HOME' in os.environ)
+
+
+	"""
+	If your python script calls other python functions / shell scripts,
+	you can set environment variables in the main python calling script's function,
+	and have all the child processes including shell scripts to see them.
+	"""
+
+	# Set the environmental variables first
+	os.environ['FOO'] = '1'
+	os.environ['BAR'] = '2'
+
+	# Open your child processes via os.system(), popen() or fork() and execv() or whatever other method you want
+
+	# Then read the variable using the same method whilst in the child process
+	env_var1 = os.environ['FOO']
+
+	# Since a string is read in, if you want the int version, you will need to parse it out
+	env_var2 = int(os.environ['BAR'])
+
+
+	""" Below example code uses functions defined in this module itself """
+	
